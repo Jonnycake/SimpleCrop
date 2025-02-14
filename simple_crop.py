@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 from argparse import ArgumentParser
 from PIL import Image, ImageOps
@@ -10,6 +10,7 @@ parser.add_argument("height", help="The required height in pixels for the output
 parser.add_argument("-o", "--output", help="The output image filepath (if none specified, image will be displayed)")
 parser.add_argument("-x", "--centering-x", help="The centering X offset from top left (0.0 - 1.0) - default: 0.5 (center)")
 parser.add_argument("-y", "--centering-y", help="The centering y offset from top left (0.0 - 1.0) - default: 0.5 (center)")
+parser.add_argument('-c', "--contain", help="Constrain the image to the given width and height - ensuring it all fits", action="store_true")
 args = parser.parse_args()
 
 try:
@@ -52,7 +53,11 @@ if centering_y < 0.0 or centering_y > 1.0:
 print(centering_x, centering_y, args.input, args.output)
 
 with Image.open(args.input) as im:
-    temp_im = ImageOps.fit(im, (width, height), centering=(centering_x, centering_y))
+    if not args.contain:
+        temp_im = ImageOps.fit(im, (width, height), centering=(centering_x, centering_y))
+    else:
+        temp_im = ImageOps.contain(im, (width, height))
+
 
     if args.output:
         temp_im.save(args.output)
